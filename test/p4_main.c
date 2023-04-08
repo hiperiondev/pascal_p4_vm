@@ -44,8 +44,24 @@
 #include "p4_file.h"
 
 int main(int argc, char *argv[]) {
-    if (strcmp(argv[1], "-c") == 0){
-        p4_compiler(argv[2]);
+    if (argc == 1 || strcmp(argv[1], "-h") == 0) {
+        printf("help:\n");
+        printf("    -c: compiler\n");
+        printf("        fileoutput (compile from stdin)\n");
+        printf("        fileinput fileoutput\n");
+        printf("\n");
+        printf("else interpreter:\n");
+        printf("        asmfileinput\n");
+        exit(0);
+    }
+
+    if (strcmp(argv[1], "-c") == 0) {
+        if (argc == 3)
+            p4_compiler("stdin", argv[2]);
+        else
+            p4_compiler(argv[2], argv[3]);
+
+        printf("\n");
         exit(0);
     }
 

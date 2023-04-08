@@ -57,3 +57,4 @@ dkms.conf
 Release/
 temp/
 *.asm.p4
+*.asm

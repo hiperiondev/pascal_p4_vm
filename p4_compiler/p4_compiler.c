@@ -44,44 +44,37 @@
 #include "p4_file.h"
 #include "p4_vm.h"
 
-#define displimit       20
-#define maxlevel        10
-#define intsize         1
-#define intal           1
-#define realsize        1
-#define realal          1
-#define charsize        1
-#define charal          1
-#define charmax         1
-#define boolsize        1
-#define boolal          1
-#define ptrsize         1
-#define adral           1
-#define setsize         1
-#define setal           1
-#define stackal         1
-#define stackelsize     1
-#define strglgth        16
-#define sethigh         47
-#define setlow          0
-#define ordmaxchar      63
-#define ordminchar      0
-#define maxint          32767
-#define lcaftermarkstack  5
-#define fileal          charal
-/* stackelsize = minimum size for 1 stackelement
- = k*stackal
- stackal     = scm(all other al-constants)
- charmax     = scm(charsize,charal)
- scm = smallest common multiple
- lcaftermarkstack >= 4*ptrsize+max(x-size)
- = k1*stackelsize  */
-#define maxstack        1
-#define parmal          stackal
-#define parmsize        stackelsize
-#define recal           stackal
-#define filebuffer      4
-#define maxaddr         maxint
+#define DISPLIMIT        20
+#define MAXLEVEL         10
+#define INTSIZE          1
+#define INTAL            1
+#define REALSIZE         1
+#define REALAL           1
+#define CHARSIZE         1
+#define CHARAL           1
+#define CHARMAX          1
+#define BOOLSIZE         1
+#define BOOLAL           1
+#define PTRSIZE          1
+#define ADRAL            1
+#define SETSIZE          1
+#define SETAL            1
+#define STACKAL          1
+#define STACKELSIZE      1
+#define STRGLGTH         16
+#define SETHIGH          47
+#define SETLOW           0
+#define ORDMAXCHAR       63
+#define ORDMINCHAR       0
+#define MAXINT           32767
+#define LCAFTERMARKSTACK 5
+#define FILEAL           CHARAL
+#define MAXSTACK         1
+#define PARMAL           STACKAL
+#define PARMSIZE         STACKELSIZE
+#define RECAL            STACKAL
+#define FILEBUFFER       4
+#define MAXADDR          MAXINT
 
 /*describing:*/
 /*************/
@@ -177,7 +170,7 @@ typedef enum {
 
 /*constants*/
 /***********/
-typedef long setty[sethigh / 32 + 2];
+typedef long setty[SETHIGH / 32 + 2];
 
 typedef enum {
     reel,
@@ -188,11 +181,11 @@ typedef enum {
 typedef struct constant {
     cstclass_t cclass;
     union {
-        char rval[strglgth];
+        char rval[STRGLGTH];
         setty pval;
         struct {
             char slgth;
-            char sval[strglgth];
+            char sval[STRGLGTH];
         } U2;
     } UU;
 } constant_t;
@@ -468,7 +461,7 @@ static disprange_t disx; /*level of last id searched by searchid*/
 static disprange_t top; /*top of display*/
 
 /*where:   means:*/
-static _REC_display_t display[displimit + 1]; /* --> procedure withstatement*/
+static _REC_display_t display[DISPLIMIT + 1]; /* --> procedure withstatement*/
 
 /*error messages:*/
 /*****************/
@@ -550,7 +543,7 @@ static void endofline(void) {
         errinx = 0;
     }
     linecount++;
-    if (list & (!p4_file_eof(stdin))) {
+    if (list & (!p4_file_eof(prd.f))) {
         printf("%6ld%2s", linecount, "  ");
         if (dp)
             printf("%7d", lc);
@@ -585,13 +578,13 @@ static void nextch(struct LOC_insymbol *LINK) {
             putchar('\n');
         endofline();
     }
-    if (p4_file_eof(stdin)) {
+    if (p4_file_eof(prd.f)) {
         printf("   *** eof encountered\n");
         LINK->test = false;
         return;
     }
-    eol = p4_file_eoln(stdin);
-    ch = fgetc(stdin);
+    eol = p4_file_eoln(prd.f);
+    ch = fgetc(prd.f);
     if (ch == '\n')
         ch = ' ';
     else if (isupper(ch))
@@ -637,8 +630,8 @@ static void insymbol(void) {
      description in the global variables sy, op, id, val and lgth*/
     struct LOC_insymbol V;
     long i, k;
-    uint8_t digit[strglgth];
-    char string[strglgth];
+    uint8_t digit[STRGLGTH];
+    char string[STRGLGTH];
     constant_t *lvp;
     long FORLIM;
 
@@ -652,7 +645,7 @@ static void insymbol(void) {
             nextch(&V);
     } while (V.test);
     /*
-     if (file_eof (stdin)) {
+     if (file_eof (prd.f)) {
      sy = othersy;
      op = noop;
      error(399);
@@ -710,7 +703,7 @@ static void insymbol(void) {
                     digit[i - 1] = ch;
                 nextch(&V);
             } while (chartp[ch] == number);
-            if (((ch == '.') & (p4_file_peek(stdin) != '.')) || ch == 'e') {
+            if (((ch == '.') & (p4_file_peek(prd.f) != '.')) || ch == 'e') {
                 k = i;
                 if (ch == '.') {
                     k++;
@@ -755,7 +748,7 @@ static void insymbol(void) {
                 lvp = malloc(sizeof(constant_t));
                 sy = realconst;
                 lvp->cclass = reel;
-                for (i = 0; i < strglgth; i++)
+                for (i = 0; i < STRGLGTH; i++)
                     lvp->UU.rval[i] = ' ';
                 if (k <= digmax) {
                     for (i = 2; i <= k + 1; i++)
@@ -794,7 +787,7 @@ static void insymbol(void) {
                 do {
                     nextch(&V);
                     lgth++;
-                    if (lgth <= strglgth)
+                    if (lgth <= STRGLGTH)
                         string[lgth - 1] = ch;
                 } while (!(eol || ch == '\''));
                 if (eol)
@@ -811,9 +804,9 @@ static void insymbol(void) {
                 else {
                     lvp = malloc(sizeof(constant_t));
                     lvp->cclass = strg;
-                    if (lgth > strglgth) {
+                    if (lgth > STRGLGTH) {
                         error(399);
-                        lgth = strglgth;
+                        lgth = STRGLGTH;
                     }
                     lvp->UU.U2.slgth = lgth;
                     FORLIM = lgth;
@@ -876,10 +869,10 @@ static void insymbol(void) {
                 if (ch == '$')
                     options(&V);
                 do {
-                    while ((ch != '*') & (!p4_file_eof(stdin)))
+                    while ((ch != '*') & (!p4_file_eof(prd.f)))
                         nextch(&V);
                     nextch(&V);
-                } while (!((ch == ')') | p4_file_eof(stdin)));
+                } while (!((ch == ')') | p4_file_eof(prd.f)));
                 nextch(&V);
                 goto _L1;
             }
@@ -1029,8 +1022,8 @@ static void getbounds(structure_t *fsp, long *fmin, long *fmax) {
         return;
     }
     if (fsp == charptr) {
-        *fmin = ordminchar;
-        *fmax = ordmaxchar;
+        *fmin = ORDMINCHAR;
+        *fmax = ORDMAXCHAR;
     } else {
         if (fsp->UU.U0.UU.fconst != NULL)
             *fmax = fsp->UU.U0.UU.fconst->UU.values.UU.ival;
@@ -1048,17 +1041,17 @@ static long alignquot(structure_t *fsp) {
 
         case scalar:
             if (fsp == intptr)
-                Result = intal;
+                Result = INTAL;
             else if (fsp == boolptr)
-                Result = boolal;
+                Result = BOOLAL;
             else if (fsp->UU.U0.scalkind == declared)
-                Result = intal;
+                Result = INTAL;
             else if (fsp == charptr)
-                Result = charal;
+                Result = CHARAL;
             else if (fsp == realptr)
-                Result = realal;
+                Result = REALAL;
             else
-                Result = parmal;
+                Result = PARMAL;
             break;
 
         case subrange:
@@ -1066,15 +1059,15 @@ static long alignquot(structure_t *fsp) {
             break;
 
         case pointer:
-            Result = adral;
+            Result = ADRAL;
             break;
 
         case power:
-            Result = setal;
+            Result = SETAL;
             break;
 
         case files:
-            Result = fileal;
+            Result = FILEAL;
             break;
 
         case arrays:
@@ -1082,7 +1075,7 @@ static long alignquot(structure_t *fsp) {
             break;
 
         case records:
-            Result = recal;
+            Result = RECAL;
             break;
 
         case variant:
@@ -1393,9 +1386,9 @@ static void typ(long *fsys, structure_t **fsp, addrrange *fsize, struct LOC_bloc
 static void skip(long *fsys, struct LOC_block *LINK) {
     /*skip input string until relevant symbol found*/
     /*skip*/
-    if (p4_file_eof(stdin))
+    if (p4_file_eof(prd.f))
         return;
-    while ((!p4_fn_inset(sy, fsys)) & (!p4_file_eof(stdin)))
+    while ((!p4_fn_inset(sy, fsys)) & (!p4_file_eof(prd.f)))
         insymbol();
     if (!p4_fn_inset(sy, fsys))
         insymbol();
@@ -1456,7 +1449,7 @@ static void constant_(long *fsys, structure_t **fsp, valu *fvalu, struct LOC_blo
                                     lvp->UU.rval[0] = '+';
                                 else
                                     lvp->UU.rval[0] = '-';
-                                for (i = 1; i < strglgth; i++)
+                                for (i = 1; i < STRGLGTH; i++)
                                     lvp->UU.rval[i] = fvalu->UU.valp->UU.rval[i];
                                 fvalu->UU.valp = lvp;
                             }
@@ -1650,7 +1643,7 @@ static void simpletype(long *fsys, structure_t **fsp, addrrange *fsize, struct L
         /* p2c: pcom.p, line 1040:
          * Note: No SpecialMalloc form known for STRUCTURE.SCALAR.DECLARED [187] */
         lsp = malloc(sizeof(structure_t));
-        lsp->size = intsize;
+        lsp->size = INTSIZE;
         lsp->form = scalar;
         lsp->UU.U0.scalkind = declared;
         lcp1 = NULL;
@@ -1696,7 +1689,7 @@ static void simpletype(long *fsys, structure_t **fsp, addrrange *fsize, struct L
                     lsp->UU.U1.rangetype = NULL;
                 }
                 lsp->UU.U1.min = lcp->UU.values;
-                lsp->size = intsize;
+                lsp->size = INTSIZE;
                 if (sy == colon)
                     insymbol();
                 else
@@ -1723,7 +1716,7 @@ static void simpletype(long *fsys, structure_t **fsp, addrrange *fsize, struct L
             }
             lsp->UU.U1.rangetype = lsp1;
             lsp->UU.U1.min = lvalu;
-            lsp->size = intsize;
+            lsp->size = INTSIZE;
             if (sy == colon)
                 insymbol();
             else
@@ -1998,7 +1991,7 @@ static void typ(long *fsys, structure_t **fsp, addrrange *fsize, struct LOC_bloc
                 lsp = malloc(sizeof(structure_t));
                 *fsp = lsp;
                 lsp->UU.eltype = NULL;
-                lsp->size = ptrsize;
+                lsp->size = PTRSIZE;
                 lsp->form = pointer;
                 insymbol();
                 if (sy == ident) {
@@ -2100,7 +2093,7 @@ static void typ(long *fsys, structure_t **fsp, addrrange *fsize, struct LOC_bloc
                     if (sy == recordsy) {
                         insymbol();
                         oldtop = top;
-                        if (top < displimit) {
+                        if (top < DISPLIMIT) {
                             top++;
                             WITH = &display[top];
                             WITH->fname = NULL;
@@ -2145,7 +2138,7 @@ static void typ(long *fsys, structure_t **fsp, addrrange *fsize, struct LOC_bloc
                                         lsp1 = NULL;
                                     } else {
                                         getbounds(lsp1, &lmin, &lmax);
-                                        if (lmin < setlow || lmax > sethigh)
+                                        if (lmin < SETLOW || lmax > SETHIGH)
                                             error(169);
                                     }
                                 }
@@ -2154,7 +2147,7 @@ static void typ(long *fsys, structure_t **fsp, addrrange *fsize, struct LOC_bloc
                              * Note: No SpecialMalloc form known for STRUCTURE.POWER [187] */
                             lsp = malloc(sizeof(structure_t));
                             lsp->UU.elset = lsp1;
-                            lsp->size = setsize;
+                            lsp->size = SETSIZE;
                             lsp->form = power;
                         } else {
                             /*file*/
@@ -2560,7 +2553,7 @@ static void parameterlist(long *fsy, identifier_t **fpar, struct LOC_procdeclara
                     if (sy == ident) {
                         searchid(1L << ((long) types), &lcp);
                         lsp = lcp->idtype;
-                        lsize = ptrsize;
+                        lsize = PTRSIZE;
                         if (lsp != NULL) {
                             if (lkind == actual) {
                                 if (lsp->form <= power)
@@ -2648,7 +2641,7 @@ static void procdeclaration(symbol_t fsy, struct LOC_block *LINK) {
     V.LINK = LINK;
     /*procdeclaration*/
     llc = lc;
-    lc = lcaftermarkstack;
+    lc = LCAFTERMARKSTACK;
     V.forw = false;
     if (sy == ident) {
         searchsection(display[top].fname, &lcp); /*decide whether forw.*/
@@ -2704,11 +2697,11 @@ static void procdeclaration(symbol_t fsy, struct LOC_block *LINK) {
     }
     oldlev = level;
     oldtop = top;
-    if (level < maxlevel)
+    if (level < MAXLEVEL)
         level++;
     else
         error(251);
-    if (top < displimit) {
+    if (top < DISPLIMIT) {
         top++;
         WITH = &display[top];
         if (V.forw)
@@ -2785,7 +2778,7 @@ static void procdeclaration(symbol_t fsy, struct LOC_block *LINK) {
             } else
                 error(14);
         } while (!(((unsigned long) sy < 32 && ((1L << ((long) sy)) & ((1L << ((long) beginsy)) | (1L << ((long) procsy)) | (1L << ((long) funcsy)))) != 0)
-                | p4_file_eof(stdin)));
+                | p4_file_eof(prd.f)));
         release_(markp); /* return local entries on runtime heap */
     }
     level = oldlev;
@@ -2849,7 +2842,7 @@ static void gen1(oprange fop, long fp2, struct LOC_body *LINK) {
                 FORLIM = WITH->UU.U2.slgth;
                 for (k = 0; k < FORLIM; k++)
                     putc(WITH->UU.U2.sval[k], prr.f);
-                for (k = WITH->UU.U2.slgth + 1; k <= strglgth; k++)
+                for (k = WITH->UU.U2.slgth + 1; k <= STRGLGTH; k++)
                     putc(' ', prr.f);
                 fprintf(prr.f, "'\n");
             } else if (fop == 42)
@@ -2901,7 +2894,7 @@ static void gen2(oprange fop, long fp1, long fp2, struct LOC_body *LINK) {
                     case 2:
                         fprintf(prr.f, "r ");
                         WITH = LINK->cstptr[fp2 - 1];
-                        for (k = 0; k < strglgth; k++)
+                        for (k = 0; k < STRGLGTH; k++)
                             putc(WITH->UU.rval[k], prr.f);
                         putc('\n', prr.f);
                         break;
@@ -2921,7 +2914,7 @@ static void gen2(oprange fop, long fp1, long fp2, struct LOC_body *LINK) {
                     case 5:
                         putc('(', prr.f);
                         WITH = LINK->cstptr[fp2 - 1];
-                        for (k = setlow; k <= sethigh; k++) {
+                        for (k = SETLOW; k <= SETHIGH; k++) {
                             if (p4_fn_inset(k, WITH->UU.pval))
                                 fprintf(prr.f, "%3ld", k);
                         }
@@ -3393,7 +3386,7 @@ static void selector(long *fsys, identifier_t *fcp, struct LOC_statement *LINK) 
                         _load(LINK->LINK);
                         gattr.typtr = WITH->UU.eltype;
                         if (debug) /*chk*/
-                            gen2t(45, 1, maxaddr, nilptr, LINK->LINK);
+                            gen2t(45, 1, MAXADDR, nilptr, LINK->LINK);
                         gattr.kind = varbl;
                         gattr.UU.U1.access = indrct;
                         gattr.UU.U1.UU.idplmt = 0;
@@ -3464,7 +3457,7 @@ static void read(struct LOC_call *LINK) {
 
     /*read*/
     llev = 1;
-    laddr = lcaftermarkstack;
+    laddr = LCAFTERMARKSTACK;
     if (sy == lparent) {
         insymbol();
         variable(p4_fn_setunion(SET1, LINK->fsys, p4_fn_expset(SET, (1L << ((long) comma)) | (1L << ((long) rparent)))), LINK);
@@ -3552,7 +3545,7 @@ static void write(struct LOC_call *LINK) {
     /*write*/
     llkey = LINK->lkey;
     llev = 1;
-    laddr = lcaftermarkstack + charmax;
+    laddr = LCAFTERMARKSTACK + CHARMAX;
     if (sy == lparent) {
         insymbol();
         expression(p4_fn_setunion(SET1, LINK->fsys, p4_fn_expset(SET, (1L << ((long) comma)) | (1L << ((long) colon)) | (1L << ((long) rparent)))), LINK->LINK);
@@ -3975,7 +3968,7 @@ static void eof_(struct LOC_call *LINK) {
         gattr.kind = varbl;
         gattr.UU.U1.access = drct;
         gattr.UU.U1.UU.U0.vlevel = 1;
-        gattr.UU.U1.UU.U0.dplmt = lcaftermarkstack;
+        gattr.UU.U1.UU.U0.dplmt = LCAFTERMARKSTACK;
     }
     loadaddress(LINK->LINK->LINK);
     if (gattr.typtr != NULL) {
@@ -4066,13 +4059,13 @@ static void callnonstandard(struct LOC_call *LINK) {
                                         align(parmptr, &locpar);
                                     } else {
                                         loadaddress(LINK->LINK->LINK);
-                                        locpar += ptrsize;
+                                        locpar += PTRSIZE;
                                         align(parmptr, &locpar);
                                     }
                                 } else {
                                     if (gattr.kind == varbl) {
                                         loadaddress(LINK->LINK->LINK);
-                                        locpar += ptrsize;
+                                        locpar += PTRSIZE;
                                         align(parmptr, &locpar);
                                     } else
                                         error(154);
@@ -4354,7 +4347,7 @@ static void factor(long *fsys, struct LOC_term *LINK) {
                  * Note: No SpecialMalloc form known for STRUCTURE.POWER [187] */
                 lsp = malloc(sizeof(structure_t));
                 lsp->UU.elset = NULL;
-                lsp->size = setsize;
+                lsp->size = SETSIZE;
                 lsp->form = power;
                 if (sy == rbrack) {
                     gattr.typtr = lsp;
@@ -4370,7 +4363,7 @@ static void factor(long *fsys, struct LOC_term *LINK) {
                             } else {
                                 if (comptypes(lsp->UU.elset, gattr.typtr, LINK->LINK->LINK->LINK->LINK->LINK)) {
                                     if (gattr.kind == cst) {
-                                        if ((unsigned long) gattr.UU.cval.UU.ival > sethigh)
+                                        if ((unsigned long) gattr.UU.cval.UU.ival > SETHIGH)
                                             error(304);
                                         else
                                             p4_fn_addset(cstpart, gattr.UU.cval.UU.ival);
@@ -4845,7 +4838,7 @@ static void assignment(identifier_t *fcp, struct LOC_statement *LINK) {
 
         case pointer:
             if (debug) /*chk*/
-                gen2t(45, 0, maxaddr, nilptr, LINK->LINK);
+                gen2t(45, 0, MAXADDR, nilptr, LINK->LINK);
             _store(&lattr, LINK->LINK);
             break;
 
@@ -5215,7 +5208,7 @@ static void forstatement(struct LOC_statement *LINK) {
                         gen0t(58, gattr.typtr, LINK->LINK);
                     /*lod*/
                     gen2t(54, 0, lc, intptr, LINK->LINK);
-                    lc += intsize;
+                    lc += INTSIZE;
                     if (lc > LINK->LINK->lcmax)
                         LINK->LINK->lcmax = lc;
                     if (lsy == tosy) /*leq*/
@@ -5274,7 +5267,7 @@ static void withstatement(struct LOC_statement *LINK) {
         selector(p4_fn_setunion(SET1, LINK->fsys, p4_fn_addset(SET, (long) dosy)), lcp, LINK);
         if (gattr.typtr != NULL) {
             if (gattr.typtr->form == records) {
-                if (top < displimit) {
+                if (top < DISPLIMIT) {
                     top++;
                     lcnt1++;
                     WITH = &display[top];
@@ -5292,7 +5285,7 @@ static void withstatement(struct LOC_statement *LINK) {
                         WITH = &display[top];
                         WITH->occur = vrec;
                         WITH->UU.vdspl = lc;
-                        lc += ptrsize;
+                        lc += PTRSIZE;
                         if (lc > LINK->LINK->lcmax)
                             LINK->LINK->lcmax = lc;
                     }
@@ -5435,15 +5428,15 @@ static void body(long *fsys, struct LOC_block *LINK) {
     else
         genlabel(&entname);
     V.cstptrix = 0;
-    V.topnew = lcaftermarkstack;
-    V.topmax = lcaftermarkstack;
+    V.topnew = LCAFTERMARKSTACK;
+    V.topmax = LCAFTERMARKSTACK;
     putlabel(entname, &V);
     genlabel(&segsize);
     genlabel(&stacktop); /*ent1*/
     gencupent(32, 1, segsize, &V); /*ent2*/
     gencupent(32, 2, stacktop, &V);
     if (LINK->fprocp != NULL) { /*copy multiple values into local cells*/
-        llc1 = lcaftermarkstack;
+        llc1 = LCAFTERMARKSTACK;
         lcp = LINK->fprocp->next;
         while (lcp != NULL) {
             WITH = lcp;
@@ -5456,7 +5449,7 @@ static void body(long *fsys, struct LOC_block *LINK) {
                             gen2t(54, 0, llc1, nilptr, &V); /*mov*/
                             gen1(40, WITH->idtype->size, &V);
                         }
-                        llc1 += ptrsize;
+                        llc1 += PTRSIZE;
                     } else
                         llc1 += WITH->idtype->size;
                 }
@@ -5580,7 +5573,7 @@ static void block(long *fsys_, symbol_t fsy, identifier_t *fprocp_) {
             error(18);
             skip(V.fsys, &V);
         }
-    } while (!(p4_fn_inset(sy, statbegsys) | p4_file_eof(stdin)));
+    } while (!(p4_fn_inset(sy, statbegsys) | p4_file_eof(prd.f)));
     dp = false;
     if (sy == beginsy)
         insymbol();
@@ -5592,7 +5585,7 @@ static void block(long *fsys_, symbol_t fsy, identifier_t *fprocp_) {
             error(6);
             skip(V.fsys, &V);
         }
-    } while (!((sy == fsy) | p4_fn_inset(sy, blockbegsys) | p4_file_eof(stdin)));
+    } while (!((sy == fsy) | p4_fn_inset(sy, blockbegsys) | p4_file_eof(prd.f)));
 }
 
 static void programme(long *fsys) {
@@ -5693,28 +5686,28 @@ static void enterstdtypes(void) { /*type underlying:*/
     WITH = intptr;
     /* p2c: pcom.p, line 3649:
      * Note: No SpecialMalloc form known for STRUCTURE.SCALAR.STANDARD [187] */
-    WITH->size = intsize;
+    WITH->size = INTSIZE;
     WITH->form = scalar;
     WITH->UU.U0.scalkind = standard;
     realptr = malloc(sizeof(structure_t)); /*real*/
     WITH = realptr;
     /* p2c: pcom.p, line 3652:
      * Note: No SpecialMalloc form known for STRUCTURE.SCALAR.STANDARD [187] */
-    WITH->size = realsize;
+    WITH->size = REALSIZE;
     WITH->form = scalar;
     WITH->UU.U0.scalkind = standard;
     charptr = malloc(sizeof(structure_t)); /*char*/
     WITH = charptr;
     /* p2c: pcom.p, line 3655:
      * Note: No SpecialMalloc form known for STRUCTURE.SCALAR.DECLARED [187] */
-    WITH->size = charsize;
+    WITH->size = CHARSIZE;
     WITH->form = scalar;
     WITH->UU.U0.scalkind = standard;
     boolptr = malloc(sizeof(structure_t)); /*bool*/
     WITH = boolptr;
     /* p2c: pcom.p, line 3658:
      * Note: No SpecialMalloc form known for STRUCTURE.POINTER [187] */
-    WITH->size = boolsize;
+    WITH->size = BOOLSIZE;
     WITH->form = scalar;
     WITH->UU.U0.scalkind = declared;
     nilptr = malloc(sizeof(structure_t)); /*nil*/
@@ -5722,19 +5715,19 @@ static void enterstdtypes(void) { /*type underlying:*/
     /* p2c: pcom.p, line 3661:
      * Note: No SpecialMalloc form known for STRUCTURE.SCALAR.STANDARD [187] */
     WITH->UU.eltype = NULL;
-    WITH->size = ptrsize;
+    WITH->size = PTRSIZE;
     WITH->form = pointer;
     parmptr = malloc(sizeof(structure_t)); /*for alignment of parameters*/
     WITH = parmptr;
     /* p2c: pcom.p, line 3664:
      * Note: No SpecialMalloc form known for STRUCTURE.FILES [187] */
-    WITH->size = parmsize;
+    WITH->size = PARMSIZE;
     WITH->form = scalar;
     WITH->UU.U0.scalkind = standard;
     textptr = malloc(sizeof(structure_t)); /*text*/
     WITH = textptr;
     WITH->UU.filtype = charptr;
-    WITH->size = charsize;
+    WITH->size = CHARSIZE;
     WITH->form = files;
 }
 
@@ -5804,7 +5797,7 @@ static void entstdnames(void) { /*name:*/
         cp->UU.U2.vkind = actual;
         cp->next = NULL;
         cp->UU.U2.vlev = 1;
-        cp->UU.U2.vaddr = lcaftermarkstack + i - 3;
+        cp->UU.U2.vaddr = LCAFTERMARKSTACK + i - 3;
         enterid(cp);
     }
     /* p2c: pcom.p, line 3707:
@@ -5817,7 +5810,7 @@ static void entstdnames(void) { /*name:*/
         cp->UU.U2.vkind = actual;
         cp->next = NULL;
         cp->UU.U2.vlev = 1;
-        cp->UU.U2.vaddr = lcaftermarkstack + i - 31;
+        cp->UU.U2.vaddr = LCAFTERMARKSTACK + i - 31;
         enterid(cp);
     }
     /* p2c: pcom.p, line 3716:
@@ -5970,7 +5963,7 @@ static void initscalars(void) {
     intlabel = 0;
     kk = 8;
     fextfilep = NULL;
-    lc = lcaftermarkstack + filebuffer;
+    lc = LCAFTERMARKSTACK + FILEBUFFER;
     /* note in the above reservation of buffer store for 2 text files */
     ic = 3;
     eol = true;
@@ -5978,8 +5971,8 @@ static void initscalars(void) {
     ch = ' ';
     chcnt = 0;
     globtestp = NULL;
-    mxint10 = maxint / 10;
-    digmax = strglgth - 1;
+    mxint10 = MAXINT / 10;
+    digmax = STRGLGTH - 1;
 }
 
 static void initsets(void) {
@@ -6128,7 +6121,7 @@ static void rators(void) {
     rop[10] = imod;
     rop[5] = orop;
     rop[12] = andop;
-    for (i = ordminchar; i <= ordmaxchar; i++)
+    for (i = ORDMINCHAR; i <= ORDMAXCHAR; i++)
         sop[(uint8_t) i] = noop;
     sop['+'] = plus;
     sop['-'] = minus;
@@ -6234,7 +6227,7 @@ static void instrmnemonics(void) {
 static void chartypes(void) {
     long i;
 
-    for (i = ordminchar; i <= ordmaxchar; i++)
+    for (i = ORDMINCHAR; i <= ORDMAXCHAR; i++)
         chartp[(uint8_t) i] = illegal;
     chartp['a'] = letter;
     chartp['b'] = letter;
@@ -6401,7 +6394,7 @@ static void inittables(void) {
     initdx();
 }
 
-void p4_compiler(char*fileto) {
+void p4_compiler(char *filefrom, char *fileto) {
     printf("- compiler - \n");
 
     _REC_display_t *WITH;
@@ -6409,6 +6402,7 @@ void p4_compiler(char*fileto) {
     long SET1[(long) casesy / 32 + 2];
     setofsys SET2;
     prr.f = NULL;
+    strcpy(prd.name, filefrom);
     strcpy(prr.name, fileto);
 
     /*initialize*/
@@ -6453,6 +6447,26 @@ void p4_compiler(char*fileto) {
     if (prr.f == NULL)
         _EscIO(FileNotFound);
     prr.f_BFLAGS = 0;
+
+    if (strcmp(prd.name, "stdin") != 0) {
+        if (*prd.name != '\0') {
+
+            if (prd.f != NULL)
+                prd.f = freopen(prd.name, "r", prd.f);
+            else
+                prd.f = fopen(prd.name, "r");
+        } else
+            rewind(prd.f);
+        if (prd.f == NULL)
+            _EscIO(FileNotFound);
+        prd.f_BFLAGS = 1;
+        printf("compile from: %s\n", prd.name);
+    } else {
+        printf("compile from: stdin\n");
+        prd.f = stdin;
+    }
+
+
     /*comment this out when compiling with pcom */
     /**********/
     insymbol();

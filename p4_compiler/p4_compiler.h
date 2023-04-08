@@ -34,6 +34,6 @@
 #ifndef P4_COMPILER_H_
 #define P4_COMPILER_H_
 
-void p4_compiler(char *fileto);
+void p4_compiler(char *filefrom, char *fileto);
 
 #endif /* P4_COMPILER_H_ */
