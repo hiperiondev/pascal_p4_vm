@@ -150,23 +150,3 @@ int _EscIO(int code) {
     P_ioresult = code;
     return _Escape(-10);
 }
-
-void _errorl(char *string, loc_load_t *LINK) {
-    // error in loading
-    printf("\n%.25s", string);
-    _Escape(0);
-} // errorl
-
-void _pt(p4_vm_t p4vm, struct loc_pmd_s *LINK) {
-    printf("%6ld", LINK->s);
-    if (labs(p4vm->store[LINK->s].vi) < LONG_MAX)
-        printf("%12ld", (long int)p4vm->store[LINK->s].vi);
-    else
-        printf("too big ");
-    LINK->s--;
-    LINK->i++;
-    if (LINK->i == 4) {
-        putchar('\n');
-        LINK->i = 0;
-    }
-} // pt

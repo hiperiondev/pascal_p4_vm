@@ -51,6 +51,12 @@ static alfa_ instr[128]; // mnemonic instruction codes
 static long cop[128];
 static alfa_ sptable[21]; // standard functions and procedures
 
+static void _errorl(char *string, loc_load_t *LINK) {
+    // error in loading
+    printf("\n%.25s", string);
+    _Escape(0);
+} // errorl
+
 static void getname(loc_assemble_t *LINK) {
     LINK->LINK->word[0] = LINK->LINK->ch;
     LINK->LINK->word[1] = getc(prd.f);

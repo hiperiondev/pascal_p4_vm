@@ -55,8 +55,5 @@ extern jmp_buf _JL1;
 char* _ShowEscape(char *buf, int code, int ior, char *prefix);
 int _Escape(int code);
 int _EscIO(int code);
-void _errorl(char *string, loc_load_t *LINK);
-void _pt(p4_vm_t p4vm, loc_pmd_t *LINK);
-void pmd(p4_vm_t p4vm, uint8_t op);
 
 #endif /* _INTERNAL_H */
