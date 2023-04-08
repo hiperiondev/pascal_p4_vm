@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#include "p4_vm.h"
 #include "p4_functions.h"
 #include "p4_file.h"
 
@@ -54,11 +55,6 @@
  compiler, the value must not be corrected, since the lengths of the types
  involved have already been taken into account.
  */
-
-#include <setjmp.h>
-
-#include "p4_vm.h"
-//#include "p4_internal.h"
 
 static short ad;
 static bool b;
@@ -89,76 +85,81 @@ static void compare(p4_vm_t p4vm, int16_t q) {
     }
 } // compare
 
-static void readi(p4_vm_t p4vm, file_t *f) {
-    short ad;
-
-    ad = p4vm->store[p4vm->sp - 1].va;
-    fscanf(f->f, "%ld", (long int *)&(p4vm->store[ad].vi));
-    p4vm->store[p4vm->store[p4vm->sp].va].vc = p4_file_peek(f->f);
-    p4vm->sp -= 2;
-} // readi
-
-static void readr(p4_vm_t p4vm, file_t *f) {
-    short ad;
-
-    ad = p4vm->store[p4vm->sp - 1].va;
-    fscanf(f->f, "%lg", &(p4vm->store[ad].vr));
-    p4vm->store[p4vm->store[p4vm->sp].va].vc = p4_file_peek(f->f);
-    p4vm->sp -= 2;
-} // readr
-
-static void readc(p4_vm_t p4vm, file_t *f) {
-    char c;
-    short ad;
-
-    c = getc(f->f);
-    if (c == '\n')
-        c = ' ';
-    ad = p4vm->store[p4vm->sp - 1].va;
-    p4vm->store[ad].vc = c;
-    p4vm->store[p4vm->store[p4vm->sp].va].vc = p4_file_peek(f->f);
-    p4vm->store[p4vm->store[p4vm->sp].va].vi = p4_file_peek(f->f);
-    p4vm->sp -= 2;
-} // readc
-
-static void writestr(p4_vm_t p4vm, file_t *f) {
-    long i, j, k;
-    short ad;
-    long FORLIM;
-
-    ad = p4vm->store[p4vm->sp - 3].va;
-    k = p4vm->store[p4vm->sp - 2].vi;
-    j = p4vm->store[p4vm->sp - 1].vi;
-    // j and k are numbers of characters
-    if (k > j) {
-        FORLIM = k - j;
-        for (i = 1; i <= FORLIM; i++)
-            putc(' ', f->f);
-    } else
-        j = k;
-    for (i = 0; i < j; i++)
-        putc(p4vm->store[ad + i].vc, f->f);
-    p4vm->sp -= 4;
-} // writestr
-
-static void getfile(p4_vm_t p4vm, file_t *f) {
-    short ad;
-
-    ad = p4vm->store[p4vm->sp].va;
-    getc(f->f);
-    p4vm->store[ad].vc = p4_file_peek(f->f);
-    p4vm->sp--;
-} // getfile
-
-static void putfile(p4_vm_t p4vm, file_t *f) {
-    short ad;
-
-    ad = p4vm->store[p4vm->sp].va;
-    putc(p4vm->store[ad].vc, f->f);
-    p4vm->sp--;
-} // putfile
-
 static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
+
+    //////////// file access //////////////
+
+    void readi(p4_vm_t p4vm, file_t *f) {
+        short ad;
+
+        ad = p4vm->store[p4vm->sp - 1].va;
+        fscanf(f->f, "%ld", (long int*) &(p4vm->store[ad].vi));
+        p4vm->store[p4vm->store[p4vm->sp].va].vc = p4_file_peek(f->f);
+        p4vm->sp -= 2;
+    } // readi
+
+    void readr(p4_vm_t p4vm, file_t *f) {
+        short ad;
+
+        ad = p4vm->store[p4vm->sp - 1].va;
+        fscanf(f->f, "%lg", &(p4vm->store[ad].vr));
+        p4vm->store[p4vm->store[p4vm->sp].va].vc = p4_file_peek(f->f);
+        p4vm->sp -= 2;
+    } // readr
+
+    void readc(p4_vm_t p4vm, file_t *f) {
+        char c;
+        short ad;
+
+        c = getc(f->f);
+        if (c == '\n')
+            c = ' ';
+        ad = p4vm->store[p4vm->sp - 1].va;
+        p4vm->store[ad].vc = c;
+        p4vm->store[p4vm->store[p4vm->sp].va].vc = p4_file_peek(f->f);
+        p4vm->store[p4vm->store[p4vm->sp].va].vi = p4_file_peek(f->f);
+        p4vm->sp -= 2;
+    } // readc
+
+    void writestr(p4_vm_t p4vm, file_t *f) {
+        long i, j, k;
+        short ad;
+        long FORLIM;
+
+        ad = p4vm->store[p4vm->sp - 3].va;
+        k = p4vm->store[p4vm->sp - 2].vi;
+        j = p4vm->store[p4vm->sp - 1].vi;
+        // j and k are numbers of characters
+        if (k > j) {
+            FORLIM = k - j;
+            for (i = 1; i <= FORLIM; i++)
+                putc(' ', f->f);
+        } else
+            j = k;
+        for (i = 0; i < j; i++)
+            putc(p4vm->store[ad + i].vc, f->f);
+        p4vm->sp -= 4;
+    } // writestr
+
+    void getfile(p4_vm_t p4vm, file_t *f) {
+        short ad;
+
+        ad = p4vm->store[p4vm->sp].va;
+        getc(f->f);
+        p4vm->store[ad].vc = p4_file_peek(f->f);
+        p4vm->sp--;
+    } // getfile
+
+    void putfile(p4_vm_t p4vm, file_t *f) {
+        short ad;
+
+        ad = p4vm->store[p4vm->sp].va;
+        putc(p4vm->store[ad].vc, f->f);
+        p4vm->sp--;
+    } // putfile
+
+    ///////////////////////////////
+
     bool line = false;
     file_t TEMP;
 
@@ -326,7 +327,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 6:
-                    printf("%*ld", (int) p4vm->store[p4vm->sp - 1].vi, (long int)p4vm->store[p4vm->sp - 2].vi);
+                    printf("%*ld", (int) p4vm->store[p4vm->sp - 1].vi, (long int) p4vm->store[p4vm->sp - 2].vi);
                     break;
 
                 case 7:
@@ -334,7 +335,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 8:
-                    fprintf(p4vm->prr.f, "%*ld", (int) p4vm->store[p4vm->sp - 1].vi, (long int)p4vm->store[p4vm->sp - 2].vi);
+                    fprintf(p4vm->prr.f, "%*ld", (int) p4vm->store[p4vm->sp - 1].vi, (long int) p4vm->store[p4vm->sp - 2].vi);
                     break;
             }
             p4vm->sp -= 3;
@@ -348,7 +349,8 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 6:
-                    printf("% .*E", (((int) p4vm->store[p4vm->sp - 1].vi - 7) > (1) ? ((int) p4vm->store[p4vm->sp - 1].vi - 7) : (1)), p4vm->store[p4vm->sp - 2].vr);
+                    printf("% .*E", (((int) p4vm->store[p4vm->sp - 1].vi - 7) > (1) ? ((int) p4vm->store[p4vm->sp - 1].vi - 7) : (1)),
+                            p4vm->store[p4vm->sp - 2].vr);
                     break;
 
                 case 7:
@@ -356,7 +358,8 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 8:
-                    fprintf(p4vm->prr.f, "% .*E", (((int) p4vm->store[p4vm->sp - 1].vi - 7) > (1) ? ((int) p4vm->store[p4vm->sp - 1].vi - 7) : (1)), p4vm->store[p4vm->sp - 2].vr);
+                    fprintf(p4vm->prr.f, "% .*E", (((int) p4vm->store[p4vm->sp - 1].vi - 7) > (1) ? ((int) p4vm->store[p4vm->sp - 1].vi - 7) : (1)),
+                            p4vm->store[p4vm->sp - 2].vr);
                     break;
             }
             p4vm->sp -= 3;
@@ -670,7 +673,7 @@ uint8_t p4_vm_interpret(p4_vm_t p4vm) {
             break;
 
         case 15: // csp
-            if(callsp(p4vm, q, op) != 255)
+            if (callsp(p4vm, q, op) != 255)
                 return op;
             break;
 
