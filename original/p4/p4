@@ -1,0 +1,12 @@
+#!/bin/csh -fb
+if ($#argv == 0) then
+  echo "No filename given !"
+  exit
+endif
+if ($#argv > 1) then
+  echo "Too many parameters !"
+  exit
+endif
+rm -f $1.pc prr prd
+pcom < $1.p && cp -f prr $1.pc && mv -f prr prd && pint && mv -f prr $1.out
+rm -f prd prr

@@ -1,0 +1,31 @@
+# OS/2 Makefile
+# Makefile for the P4 pascal compiler and interpreter
+
+CC = gcc
+CFLAGS = -O3 -fomit-frame-pointer -funroll-loops
+#CFLAGS = -Wall -g
+RM = del
+
+.c.o:
+	$(CC) -I. $(CFLAGS) -c $<
+
+all: pcom.exe pint.exe
+
+pcom.exe: p2c.a pcom.o
+	$(CC) pcom.o -o pcom.exe -L. -lp2c
+
+pcom.o: pcom.c p2c.h
+
+pint.exe: p2c.a pint.o
+	$(CC) pint.o -o pint.exe -L. -lp2c -lm
+
+pint.o: pint.c p2c.h
+
+p2c.a: p2clib.o
+	ar rv p2c.a p2clib.o
+
+p2clib.o: p2clib.c p2c.h
+
+clean:
+	$(RM) *.o *.a pint.exe pcom.exe core prr prd
+
