@@ -58,3 +58,4 @@ Release/
 temp/
 *.asm.p4
 *.asm
+vgcore.*

@@ -552,6 +552,9 @@ static void endofline(void) {
         putchar(' ');
     }
     chcnt = 0;
+
+    if (p4_file_eof(prd.f))
+        return;
 }
 
 static void error(long ferrnr) {
@@ -5626,7 +5629,7 @@ static void programme(long *fsys) {
         block(fsys, period, NULL);
         if (sy != period)
             error(21);
-    } while (!((sy == period) | p4_file_eof(stdin)));
+    } while (!((sy == period) | p4_file_eof(prd.f)));
     if (list)
         putchar('\n');
     if (errinx != 0) {
