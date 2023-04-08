@@ -3,7 +3,7 @@
  * * Project Site: https://github.com/hiperiondev/pascal_p4_vm *
  *
  * This is based on other projects:
- *      I.J.A.vanGeel@twi.tudelft.nl (August 22 1996) - https://github.com/hiperiondev/pascal_p4_vm/original
+ *      I.J.A.vanGeel@twi.tudelft.nl (August 22 1996) - https://github.com/hiperiondev/pascal_p4_vm/tree/main/original/p4
  *      - Assembler and interpreter of Pascal code: K. Jensen, N. Wirth, Ch. Jacobi, ETH May 76
  *
  *    please contact their authors for more information.
