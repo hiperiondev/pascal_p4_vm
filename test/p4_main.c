@@ -100,6 +100,9 @@ int main(int argc, char *argv[]) {
     p4vm->np = MAXSTK + 1;
     p4vm->ep = 5;
 
+    p4vm->prr = prr;
+    p4vm->prd = prd;
+
     p4vm->store[INPUTADR].vc = ' ';
     p4vm->store[PRDADR].vc = p4_file_peek(prd.f);
     p4vm->run = true;

@@ -40,6 +40,7 @@
 #include <limits.h>
 
 #include "p4_functions.h"
+#include "p4_file.h"
 
 /* Note for the implementation.
  ===========================
@@ -57,10 +58,7 @@
 #include <setjmp.h>
 
 #include "p4_vm.h"
-//#include "p4_assembler.h"
-#include "p4_internal.h"
-
-typedef char alfa_[10];
+//#include "p4_internal.h"
 
 static short ad;
 static bool b;
@@ -178,7 +176,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 7:
-                    getfile(p4vm, &prd);
+                    getfile(p4vm, &(p4vm->prd));
                     break;
 
                 case 8:
@@ -205,7 +203,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 8:
-                    putfile(p4vm, &prr);
+                    putfile(p4vm, &(p4vm->prr));
                     break;
             }
             break;
@@ -269,7 +267,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 8:
-                    putc('\n', prr.f);
+                    putc('\n', p4vm->prr.f);
                     break;
             }
             p4vm->sp--;
@@ -293,7 +291,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 8:
-                    writestr(p4vm, &prr);
+                    writestr(p4vm, &(p4vm->prr));
                     break;
             }
             break;
@@ -310,7 +308,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 7:
-                    line = p4_file_eoln(prd.f);
+                    line = p4_file_eoln(p4vm->prd.f);
                     break;
 
                 case 8:
@@ -336,7 +334,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 8:
-                    fprintf(prr.f, "%*ld", (int) p4vm->store[p4vm->sp - 1].vi, (long int)p4vm->store[p4vm->sp - 2].vi);
+                    fprintf(p4vm->prr.f, "%*ld", (int) p4vm->store[p4vm->sp - 1].vi, (long int)p4vm->store[p4vm->sp - 2].vi);
                     break;
             }
             p4vm->sp -= 3;
@@ -358,7 +356,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 8:
-                    fprintf(prr.f, "% .*E", (((int) p4vm->store[p4vm->sp - 1].vi - 7) > (1) ? ((int) p4vm->store[p4vm->sp - 1].vi - 7) : (1)), p4vm->store[p4vm->sp - 2].vr);
+                    fprintf(p4vm->prr.f, "% .*E", (((int) p4vm->store[p4vm->sp - 1].vi - 7) > (1) ? ((int) p4vm->store[p4vm->sp - 1].vi - 7) : (1)), p4vm->store[p4vm->sp - 2].vr);
                     break;
             }
             p4vm->sp -= 3;
@@ -380,7 +378,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 8:
-                    fprintf(prr.f, "%*c", (int) p4vm->store[p4vm->sp - 1].vi, (char) p4vm->store[p4vm->sp - 2].vi);
+                    fprintf(p4vm->prr.f, "%*c", (int) p4vm->store[p4vm->sp - 1].vi, (char) p4vm->store[p4vm->sp - 2].vi);
                     break;
             }
             p4vm->sp -= 3;
@@ -400,7 +398,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 7:
-                    readi(p4vm, &prd);
+                    readi(p4vm, &(p4vm->prd));
                     break;
 
                 case 8:
@@ -423,7 +421,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 7:
-                    readr(p4vm, &prd);
+                    readr(p4vm, &(p4vm->prd));
                     break;
 
                 case 8:
@@ -446,7 +444,7 @@ static uint8_t callsp(p4_vm_t p4vm, int16_t q, uint8_t op) {
                     break;
 
                 case 7:
-                    readc(p4vm, &prd);
+                    readc(p4vm, &(p4vm->prd));
                     break;
 
                 case 8:

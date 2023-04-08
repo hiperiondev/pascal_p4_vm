@@ -37,6 +37,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "p4_file.h"
+
 #define CODEMAX    8650
 #define PCMAX      17500
 #define MAXSTK     13650   // size of variable store
@@ -78,13 +80,14 @@ typedef union rec_store_s {
 
 typedef struct p4_vm_s {
      rec_code_t code[CODEMAX + 1];
-       uint32_t pc; // program address register
+       uint32_t pc;      // program address register
            bool run;
+        int16_t mp;      // points to beginning of a data segment
+        int16_t sp;      // points to top of the stack
+        int16_t np;      // points to the maximum extent of the stack
+        int16_t ep;      // points to top of the dynamically allocated area
+         file_t prd, prr; // prd for read only, prr for write only
     rec_store_t store[OVERM + 1];
-        int16_t mp; // points to beginning of a data segment
-        int16_t sp; // points to top of the stack
-        int16_t np; // points to the maximum extent of the stack
-        int16_t ep; // points to top of the dynamically allocated area
 } *p4_vm_t;
 
 uint8_t p4_vm_interpret(p4_vm_t p4vm);
