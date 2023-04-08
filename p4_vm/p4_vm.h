@@ -37,22 +37,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define CODEMAX         8650
-#define PCMAX           17500
-#define MAXSTK          13650   // size of variable store
-#define OVERI           13655   // size of integer constant table = 5
-#define OVERR           13660   // size of real constant table = 5
-#define OVERS           13730   // size of set constant table = 70
-#define OVERB           13820
-#define OVERM           18000
-#define MAXSTR          18001
-#define LARGEINT        26144
-#define BEGINCODE       3
-#define INPUTADR        5
-#define OUTPUTADR       6
-#define PRDADR          7
-#define PRRADR          8
-#define DUMINST         62
+#define CODEMAX    8650
+#define PCMAX      17500
+#define MAXSTK     13650   // size of variable store
+#define OVERI      13655   // size of integer constant table = 5
+#define OVERR      13660   // size of real constant table = 5
+#define OVERS      13730   // size of set constant table = 70
+#define OVERB      13820
+#define OVERM      18000
+#define MAXSTR     18001
+#define LARGEINT   26144
+#define BEGINCODE  3
+#define INPUTADR   5
+#define OUTPUTADR  6
+#define PRDADR     7
+#define PRRADR     8
+#define DUMINST    62
 
 typedef long settype[3];
 

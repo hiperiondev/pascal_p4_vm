@@ -39,7 +39,6 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "p4_file.h"
 #include "p4_functions.h"
 
 /* Note for the implementation.
@@ -66,14 +65,6 @@ typedef char alfa_[10];
 static short ad;
 static bool b;
 static long i, i1, i2;
-
-/*
-static void errori(p4_vm_t p4vm, uint8_t op, char *string) {
-    printf("\n%.25s\n", string);
-    pmd(p4vm, op);
-    longjmp(_JL1, 1);
-} // errori
-*/
 
 static short base(p4_vm_t p4vm, long ld) {
     short ad;

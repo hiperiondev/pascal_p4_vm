@@ -38,12 +38,12 @@ long* p4_fn_setunion(register long *d, register long *s1, register long *s2);
 long* p4_fn_setint(register long *d, register long *s1, register long *s2);
 long* p4_fn_setdiff(register long *d, register long *s1, register long *s2);
 long* p4_fn_setxor(register long *d, register long *s1, register long *s2);
-int p4_fn_inset(register unsigned val, register long *s);
+  int p4_fn_inset(register unsigned val, register long *s);
 long* p4_fn_addset(register long *s, register unsigned val);
 long* p4_fn_addsetr(register long *s, register unsigned v1, register unsigned v2);
 long* p4_fn_remset(register long *s, register unsigned val);
-int p4_fn_setequal(register long *s1, register long *s2);
-int p4_fn_subset(register long *s1, register long *s2);
+  int p4_fn_setequal(register long *s1, register long *s2);
+  int p4_fn_subset(register long *s1, register long *s2);
 long* p4_fn_setcpy(register long *d, register long *s);
 long* p4_fn_expset(register long *d, register long s);
 

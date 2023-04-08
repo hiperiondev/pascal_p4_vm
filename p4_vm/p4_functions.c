@@ -33,8 +33,6 @@
 
 #include <string.h>
 
-#include "p4_internal.h"
-
 #define SETBITS  32
 
 // Sets are stored as an array of longs.  S[0] is the size of the set;
